@@ -22,7 +22,7 @@ import com.management.modules.security.security.TokenProvider;
 import com.management.utils.AnonTagUtils;
 import com.management.utils.enums.RequestMethodEnum;
 import lombok.RequiredArgsConstructor;
-import me.zhengjie.modules.security.security.*;
+import com.management.modules.security.security.*;
 import com.management.modules.security.service.OnlineUserService;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;

@@ -28,7 +28,7 @@ import com.management.domain.ColumnInfo;
 import com.management.domain.dto.TableInfo;
 import com.management.mapper.ColumnInfoMapper;
 import com.management.service.GeneratorService;
-import me.zhengjie.utils.*;
+import com.management.utils.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;

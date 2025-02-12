@@ -24,7 +24,7 @@ import lombok.RequiredArgsConstructor;
 import com.management.modules.system.domain.Job;
 import com.management.modules.system.mapper.UserMapper;
 import com.management.modules.system.domain.dto.JobQueryCriteria;
-import me.zhengjie.utils.*;
+import com.management.utils.*;
 import com.management.modules.system.mapper.JobMapper;
 import com.management.modules.system.service.JobService;
 import org.springframework.stereotype.Service;

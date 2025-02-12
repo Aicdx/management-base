@@ -32,7 +32,7 @@ import com.management.modules.system.mapper.UserJobMapper;
 import com.management.modules.system.mapper.UserMapper;
 import com.management.modules.system.mapper.UserRoleMapper;
 import com.management.modules.system.service.UserService;
-import me.zhengjie.utils.*;
+import com.management.utils.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;

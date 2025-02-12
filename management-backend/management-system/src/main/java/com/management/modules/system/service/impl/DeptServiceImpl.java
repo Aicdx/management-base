@@ -28,7 +28,7 @@ import com.management.modules.system.domain.User;
 import com.management.modules.system.mapper.RoleMapper;
 import com.management.modules.system.mapper.UserMapper;
 import com.management.modules.system.domain.dto.DeptQueryCriteria;
-import me.zhengjie.utils.*;
+import com.management.utils.*;
 import com.management.modules.system.mapper.DeptMapper;
 import com.management.modules.system.service.DeptService;
 import org.springframework.stereotype.Service;

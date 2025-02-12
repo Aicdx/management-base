@@ -27,7 +27,7 @@ import com.management.modules.system.domain.Dict;
 import com.management.modules.system.domain.DictDetail;
 import com.management.modules.system.mapper.DictMapper;
 import com.management.modules.system.domain.dto.DictDetailQueryCriteria;
-import me.zhengjie.utils.*;
+import com.management.utils.*;
 import com.management.modules.system.mapper.DictDetailMapper;
 import com.management.modules.system.service.DictDetailService;
 import org.springframework.stereotype.Service;

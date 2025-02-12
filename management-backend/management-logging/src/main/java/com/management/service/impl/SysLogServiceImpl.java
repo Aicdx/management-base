@@ -30,7 +30,7 @@ import com.management.domain.SysLog;
 import com.management.mapper.SysLogMapper;
 import com.management.service.SysLogService;
 import com.management.domain.dto.SysLogQueryCriteria;
-import me.zhengjie.utils.*;
+import com.management.utils.*;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.scheduling.annotation.Async;

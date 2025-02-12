@@ -34,7 +34,7 @@ import com.management.modules.system.mapper.RoleMenuMapper;
 import com.management.modules.system.mapper.UserMapper;
 import com.management.modules.system.service.RoleService;
 import com.management.modules.system.domain.dto.RoleQueryCriteria;
-import me.zhengjie.utils.*;
+import com.management.utils.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import javax.servlet.http.HttpServletResponse;
