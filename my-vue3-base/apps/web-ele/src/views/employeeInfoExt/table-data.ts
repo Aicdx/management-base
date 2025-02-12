@@ -1,0 +1,42 @@
+export const MOCK_API_DATA = [
+  {
+    id: '1',
+    category: '电子产品',
+    color: '黑色',
+    productName: 'iPhone 14',
+    price: '6999',
+    releaseDate: '2023-09-15 10:00:00',
+  },
+  {
+    id: '2',
+    category: '电子产品',
+    color: '白色',
+    productName: 'MacBook Pro',
+    price: '12999',
+    releaseDate: '2023-10-20 14:30:00',
+  },
+  {
+    id: '3',
+    category: '配件',
+    color: '灰色',
+    productName: 'AirPods Pro',
+    price: '1999',
+    releaseDate: '2023-08-01 09:00:00',
+  },
+  {
+    id: '4',
+    category: '配件',
+    color: '银色',
+    productName: 'Apple Watch',
+    price: '3299',
+    releaseDate: '2023-11-05 16:45:00',
+  },
+  {
+    id: '5',
+    category: '电子产品',
+    color: '金色',
+    productName: 'iPad Air',
+    price: '4799',
+    releaseDate: '2023-07-12 11:20:00',
+  },
+];

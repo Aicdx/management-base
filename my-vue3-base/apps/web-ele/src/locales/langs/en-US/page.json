@@ -1,0 +1,23 @@
+{
+  "auth": {
+    "codeLogin": "Code Login",
+    "forgetPassword": "Forget Password",
+    "login": "Login",
+    "qrcodeLogin": "Qr Code Login",
+    "register": "Register"
+  },
+  "dashboard": {
+    "analytics": "Analytics",
+    "title": "Dashboard",
+    "workspace": "Workspace"
+  },
+  "employeeInfoExt": {
+    "employee": "Employee",
+    "title": "Employee Info Ext"
+  },
+  "outsourcing": {
+    "title": "Outsourcing",
+    "information": "Outsourcing Information",
+    "account": "Outsourcing Account"
+  }
+}
