@@ -18,6 +18,7 @@ package com.management.modules.security.rest;
 import cn.hutool.core.util.IdUtil;
 import com.management.annotation.rest.AnonymousGetMapping;
 import com.management.annotation.rest.AnonymousPostMapping;
+import com.management.base.BaseResult;
 import com.management.config.properties.RsaProperties;
 import com.management.exception.BadRequestException;
 import com.management.modules.security.config.CaptchaConfig;
@@ -81,16 +82,16 @@ public class AuthController {
     public ResponseEntity<Object> login(@Validated @RequestBody AuthUserDto authUser, HttpServletRequest request) throws Exception {
         // 密码解密
         String password = RsaUtils.decryptByPrivateKey(RsaProperties.privateKey, authUser.getPassword());
-        // 查询验证码
-        String code = redisUtils.get(authUser.getUuid(), String.class);
-        // 清除验证码
-        redisUtils.del(authUser.getUuid());
-        if (StringUtils.isBlank(code)) {
-            throw new BadRequestException("验证码不存在或已过期");
-        }
-        if (StringUtils.isBlank(authUser.getCode()) || !authUser.getCode().equalsIgnoreCase(code)) {
-            throw new BadRequestException("验证码错误");
-        }
+        // // 查询验证码
+        // String code = redisUtils.get(authUser.getUuid(), String.class);
+        // // 清除验证码
+        // redisUtils.del(authUser.getUuid());
+        // if (StringUtils.isBlank(code)) {
+        //     throw new BadRequestException("验证码不存在或已过期");
+        // }
+        // if (StringUtils.isBlank(authUser.getCode()) || !authUser.getCode().equalsIgnoreCase(code)) {
+        //     throw new BadRequestException("验证码错误");
+        // }
         // 获取用户信息
         JwtUserDto jwtUser = userDetailsService.loadUserByUsername(authUser.getUsername());
         // 验证用户密码
@@ -105,7 +106,7 @@ public class AuthController {
         jwtUser.setPassword(null);
         // 返回 token 与 用户信息
         Map<String, Object> authInfo = new HashMap<String, Object>(2) {{
-            put("token", properties.getTokenStartWith() + token);
+            put("accessToken", properties.getTokenStartWith() + token);
             put("user", jwtUser);
         }};
         if (loginProperties.isSingleLogin()) {
@@ -115,17 +116,25 @@ public class AuthController {
         // 保存在线信息
         onlineUserService.save(jwtUser, token, request);
         // 返回登录信息
-        return ResponseEntity.ok(authInfo);
+        return ResponseEntity.ok(BaseResult.success(authInfo));
     }
 
     @ApiOperation("获取用户信息")
-    @GetMapping(value = "/info")
-    public ResponseEntity<UserDetails> getUserInfo() {
+    @GetMapping(value = "/user/info")
+    public ResponseEntity<Object> getUserInfo() {
         JwtUserDto jwtUser = (JwtUserDto) SecurityUtils.getCurrentUser();
         // 将密码设置为空
         jwtUser.setPassword(null);
-        return ResponseEntity.ok(jwtUser);
+        return ResponseEntity.ok(BaseResult.success(jwtUser));
     }
+
+    @ApiOperation("获取用户权限码")
+    @GetMapping(value = "/user/permissionsCode")
+    public ResponseEntity<Object> getPermissionsCode() {
+        //TODO 先返回空数组，后续再修改
+        return ResponseEntity.ok(BaseResult.success(new String[]{}));
+    }
+
 
     @ApiOperation("获取验证码")
     @AnonymousGetMapping(value = "/code")
@@ -145,7 +154,7 @@ public class AuthController {
             put("img", captcha.toBase64());
             put("uuid", uuid);
         }};
-        return ResponseEntity.ok(imgResult);
+        return ResponseEntity.ok(BaseResult.success(imgResult));
     }
 
     @ApiOperation("退出登录")
@@ -153,6 +162,6 @@ public class AuthController {
     public ResponseEntity<Object> logout(HttpServletRequest request) {
         String token = tokenProvider.getToken(request);
         onlineUserService.logout(token);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.ok(BaseResult.success(null));
     }
 }
