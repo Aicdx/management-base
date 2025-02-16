@@ -18,6 +18,7 @@ package com.management.modules.system.rest;
 import cn.hutool.core.collection.CollectionUtil;
 import com.management.annotation.Log;
 import com.management.base.BaseEntity;
+import com.management.base.BaseResult;
 import com.management.exception.BadRequestException;
 import com.management.modules.system.domain.Menu;
 import com.management.modules.system.domain.dto.MenuQueryCriteria;
@@ -58,12 +59,12 @@ public class MenuController {
         menuService.download(menuService.queryAll(criteria, false), response);
     }
 
-    @GetMapping(value = "/build")
+    @GetMapping(value = "/all")
     @ApiOperation("获取前端所需菜单")
-    public ResponseEntity<List<MenuVo>> buildMenus(){
+    public ResponseEntity<BaseResult<List<MenuVo>>> buildMenus(){
         List<Menu> menuList = menuService.findByUser(SecurityUtils.getCurrentUserId());
         List<Menu> menus = menuService.buildTree(menuList);
-        return new ResponseEntity<>(menuService.buildMenus(menus),HttpStatus.OK);
+        return ResponseEntity.ok(BaseResult.success(menuService.buildMenus(menus)));
     }
 
     @ApiOperation("返回全部的菜单")
