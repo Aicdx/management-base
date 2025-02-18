@@ -15,9 +15,34 @@
  */
 package com.management.modules.system.rest;
 
-import cn.hutool.core.collection.CollectionUtil;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.management.annotation.Log;
+import com.management.base.BaseResult;
 import com.management.config.properties.RsaProperties;
 import com.management.exception.BadRequestException;
 import com.management.modules.system.domain.Dept;
@@ -25,32 +50,20 @@ import com.management.modules.system.domain.Role;
 import com.management.modules.system.domain.User;
 import com.management.modules.system.domain.dto.UserPassVo;
 import com.management.modules.system.domain.dto.UserQueryCriteria;
-import com.management.utils.PageResult;
+import com.management.modules.system.service.DataService;
+import com.management.modules.system.service.DeptService;
+import com.management.modules.system.service.RoleService;
+import com.management.modules.system.service.UserService;
+import com.management.modules.system.service.VerifyService;
 import com.management.utils.PageUtil;
 import com.management.utils.RsaUtils;
 import com.management.utils.SecurityUtils;
 import com.management.utils.enums.CodeEnum;
+
+import cn.hutool.core.collection.CollectionUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
-import com.management.modules.system.service.DataService;
-import com.management.modules.system.service.DeptService;
-import com.management.modules.system.service.RoleService;
-import com.management.modules.system.service.VerifyService;
-import com.management.modules.system.service.UserService;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.ObjectUtils;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @author Zheng Jie
@@ -77,9 +90,9 @@ public class UserController {
     }
 
     @ApiOperation("查询用户")
-    @GetMapping
+    @GetMapping(value = "/list")
     @PreAuthorize("@el.check('user:list')")
-    public ResponseEntity<PageResult<User>> queryUser(UserQueryCriteria criteria){
+    public ResponseEntity<Object> queryUser(UserQueryCriteria criteria){
         Page<Object> page = new Page<>(criteria.getPage(), criteria.getSize());
         if (!ObjectUtils.isEmpty(criteria.getDeptId())) {
             criteria.getDeptIds().add(criteria.getDeptId());
@@ -95,14 +108,14 @@ public class UserController {
             // 取交集
             criteria.getDeptIds().retainAll(dataScopes);
             if(!CollectionUtil.isEmpty(criteria.getDeptIds())){
-                return new ResponseEntity<>(userService.queryAll(criteria,page),HttpStatus.OK);
+                return ResponseEntity.ok(BaseResult.success(userService.queryAll(criteria,page)));
             }
         } else {
             // 否则取并集
             criteria.getDeptIds().addAll(dataScopes);
-            return new ResponseEntity<>(userService.queryAll(criteria,page),HttpStatus.OK);
+            return ResponseEntity.ok(BaseResult.success(userService.queryAll(criteria,page)));
         }
-        return new ResponseEntity<>(PageUtil.noData(),HttpStatus.OK);
+        return ResponseEntity.ok(BaseResult.success(PageUtil.noData()));
     }
 
     @Log("新增用户")
@@ -114,7 +127,7 @@ public class UserController {
         // 默认密码 123456
         resources.setPassword(passwordEncoder.encode("123456"));
         userService.create(resources);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        return ResponseEntity.ok(BaseResult.success(null));
     }
 
     @Log("修改用户")
@@ -124,7 +137,7 @@ public class UserController {
     public ResponseEntity<Object> updateUser(@Validated(User.Update.class) @RequestBody User resources) throws Exception {
         checkLevel(resources);
         userService.update(resources);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return ResponseEntity.ok(BaseResult.success(null));
     }
 
     @Log("修改用户：个人中心")
@@ -135,7 +148,7 @@ public class UserController {
             throw new BadRequestException("不能修改他人资料");
         }
         userService.updateCenter(resources);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return ResponseEntity.ok(BaseResult.success(null));
     }
 
     @Log("删除用户")
@@ -151,7 +164,7 @@ public class UserController {
             }
         }
         userService.delete(ids);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.ok(BaseResult.success(null));
     }
 
     @ApiOperation("修改密码")
@@ -167,7 +180,7 @@ public class UserController {
             throw new BadRequestException("新密码不能与旧密码相同");
         }
         userService.updatePass(user.getUsername(),passwordEncoder.encode(newPass));
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.ok(BaseResult.success(null));
     }
 
     @ApiOperation("重置密码")
@@ -175,13 +188,13 @@ public class UserController {
     public ResponseEntity<Object> resetPwd(@RequestBody Set<Long> ids) {
         String pwd = passwordEncoder.encode("123456");
         userService.resetPwd(ids, pwd);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.ok(BaseResult.success(null));
     }
 
     @ApiOperation("修改头像")
     @PostMapping(value = "/updateAvatar")
     public ResponseEntity<Object> updateUserAvatar(@RequestParam MultipartFile avatar){
-        return new ResponseEntity<>(userService.updateAvatar(avatar), HttpStatus.OK);
+        return ResponseEntity.ok(BaseResult.success(userService.updateAvatar(avatar)));
     }
 
     @Log("修改邮箱")
@@ -195,7 +208,7 @@ public class UserController {
         }
         verificationCodeService.validated(CodeEnum.EMAIL_RESET_EMAIL_CODE.getKey() + resources.getEmail(), code);
         userService.updateEmail(user.getUsername(),resources.getEmail());
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.ok(BaseResult.success(null));
     }
 
     /**

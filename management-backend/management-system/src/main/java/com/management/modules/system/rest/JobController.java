@@ -15,24 +15,33 @@
  */
 package com.management.modules.system.rest;
 
+import java.io.IOException;
+import java.util.Set;
+
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.management.annotation.Log;
+import com.management.base.BaseResult;
 import com.management.exception.BadRequestException;
 import com.management.modules.system.domain.Job;
 import com.management.modules.system.domain.dto.JobQueryCriteria;
 import com.management.modules.system.service.JobService;
-import com.management.utils.PageResult;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.Set;
 
 /**
 * @author Zheng Jie
@@ -57,9 +66,9 @@ public class JobController {
     @ApiOperation("查询岗位")
     @GetMapping
     @PreAuthorize("@el.check('job:list','user:list')")
-    public ResponseEntity<PageResult<Job>> queryJob(JobQueryCriteria criteria){
+    public ResponseEntity<Object> queryJob(JobQueryCriteria criteria){
         Page<Object> page = new Page<>(criteria.getPage(), criteria.getSize());
-        return new ResponseEntity<>(jobService.queryAll(criteria, page),HttpStatus.OK);
+        return ResponseEntity.ok(BaseResult.success(jobService.queryAll(criteria, page)));
     }
 
     @Log("新增岗位")
@@ -71,7 +80,7 @@ public class JobController {
             throw new BadRequestException("A new "+ ENTITY_NAME +" cannot already have an ID");
         }
         jobService.create(resources);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        return ResponseEntity.ok(BaseResult.success(null));
     }
 
     @Log("修改岗位")
@@ -80,7 +89,7 @@ public class JobController {
     @PreAuthorize("@el.check('job:edit')")
     public ResponseEntity<Object> updateJob(@Validated(Job.Update.class) @RequestBody Job resources){
         jobService.update(resources);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return ResponseEntity.ok(BaseResult.success(null));
     }
 
     @Log("删除岗位")
@@ -91,6 +100,6 @@ public class JobController {
         // 验证是否被用户关联
         jobService.verification(ids);
         jobService.delete(ids);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.ok(BaseResult.success(null));
     }
 }

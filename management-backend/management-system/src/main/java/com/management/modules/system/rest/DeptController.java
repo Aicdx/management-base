@@ -15,26 +15,40 @@
  */
 package com.management.modules.system.rest;
 
-import cn.hutool.core.collection.CollectionUtil;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.management.annotation.Log;
 import com.management.base.BaseEntity;
+import com.management.base.BaseResult;
 import com.management.exception.BadRequestException;
 import com.management.modules.system.domain.Dept;
 import com.management.modules.system.domain.dto.DeptQueryCriteria;
 import com.management.modules.system.service.DeptService;
-import com.management.utils.PageResult;
 import com.management.utils.PageUtil;
+
+import cn.hutool.core.collection.CollectionUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
-import javax.servlet.http.HttpServletResponse;
-import java.util.*;
-import java.util.stream.Collectors;
 
 /**
 * @author Zheng Jie
@@ -59,9 +73,9 @@ public class DeptController {
     @ApiOperation("查询部门")
     @GetMapping
     @PreAuthorize("@el.check('user:list','dept:list')")
-    public ResponseEntity<PageResult<Dept>> queryDept(DeptQueryCriteria criteria) throws Exception {
+    public ResponseEntity<Object> queryDept(DeptQueryCriteria criteria) throws Exception {
         List<Dept> depts = deptService.queryAll(criteria, true);
-        return new ResponseEntity<>(PageUtil.toPage(depts),HttpStatus.OK);
+        return ResponseEntity.ok(BaseResult.success(PageUtil.toPage(depts)));
     }
 
     @ApiOperation("查询部门:根据ID获取同级与上级数据")
@@ -83,7 +97,7 @@ public class DeptController {
             }
             deptSet.addAll(depts);
         }
-        return new ResponseEntity<>(deptService.buildTree(new ArrayList<>(deptSet)),HttpStatus.OK);
+        return ResponseEntity.ok(BaseResult.success(deptService.buildTree(new ArrayList<>(deptSet))));
     }
 
     @Log("新增部门")
@@ -95,7 +109,7 @@ public class DeptController {
             throw new BadRequestException("A new "+ ENTITY_NAME +" cannot already have an ID");
         }
         deptService.create(resources);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        return ResponseEntity.ok(BaseResult.success(null));
     }
 
     @Log("修改部门")
@@ -104,7 +118,7 @@ public class DeptController {
     @PreAuthorize("@el.check('dept:edit')")
     public ResponseEntity<Object> updateDept(@Validated(BaseEntity.Update.class) @RequestBody Dept resources){
         deptService.update(resources);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return ResponseEntity.ok(BaseResult.success(null));
     }
 
     @Log("删除部门")
@@ -123,6 +137,6 @@ public class DeptController {
         // 验证是否被角色或用户关联
         deptService.verification(depts);
         deptService.delete(depts);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.ok(BaseResult.success(null));
     }
 }
